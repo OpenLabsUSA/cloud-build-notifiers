@@ -15,6 +15,14 @@ func TestWriteMessage(t *testing.T) {
 		Id:        "some-build-id",
 		Status:    cbpb.Build_SUCCESS,
 		LogUrl:    "https://some.example.com/log/url?foo=bar",
+		Substitutions: map[string]string{
+			"REPO_NAME": "repo-name",
+			"SHORT_SHA": "abc123",
+		},
+		Steps: []*cbpb.BuildStep{
+			{Id: "step 1", Status: cbpb.Build_SUCCESS},
+			{Id: "step 2", Status: cbpb.Build_FAILURE},
+		},
 	}
 
 	got, err := n.writeMessage(b)
@@ -24,7 +32,7 @@ func TestWriteMessage(t *testing.T) {
 
 	want := &slack.WebhookMessage{
 		Attachments: []slack.Attachment{{
-			Text:  "Cloud Build (my-project-id, some-build-id): SUCCESS",
+			Text:  "SUCCESS: repo:`repo-name` commit:`abc123` step:`step 2`",
 			Color: "good",
 			Actions: []slack.AttachmentAction{{
 				Text: "View Logs",

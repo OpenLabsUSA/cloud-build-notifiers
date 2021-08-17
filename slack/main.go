@@ -15,17 +15,20 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 
 	"github.com/GoogleCloudPlatform/cloud-build-notifiers/lib/notifiers"
 	log "github.com/golang/glog"
+	"github.com/golang/protobuf/proto"
 	"github.com/slack-go/slack"
 	cbpb "google.golang.org/genproto/googleapis/devtools/cloudbuild/v1"
 )
 
 const (
 	webhookURLSecretName = "webhookUrl"
+	textTemplateName     = "textTemplate"
 )
 
 func main() {
@@ -79,12 +82,23 @@ func (s *slackNotifier) SendNotification(ctx context.Context, build *cbpb.Build)
 }
 
 func (s *slackNotifier) writeMessage(build *cbpb.Build) (*slack.WebhookMessage, error) {
-	txt := fmt.Sprintf(
-		"Cloud Build (%s, %s): %s",
-		build.ProjectId,
-		build.Id,
-		build.Status,
-	)
+	log.Infof("JLIDEBUG: full build proto: %s", proto.MarshalTextString((build)))
+
+	var b bytes.Buffer
+	b.WriteString(fmt.Sprintf("%s: ", build.Status))
+	if val, ok := build.Substitutions["REPO_NAME"]; ok {
+		b.WriteString(fmt.Sprintf("repo:`%s` ", val))
+	}
+	if val, ok := build.Substitutions["SHORT_SHA"]; ok {
+		b.WriteString(fmt.Sprintf("commit:`%s` ", val))
+	}
+	for _, step := range build.Steps {
+		if step.Status == cbpb.Build_FAILURE {
+			b.WriteString(fmt.Sprintf("step:`%s`", step.Id))
+			break
+		}
+	}
+	txt := b.String()
 
 	var clr string
 	switch build.Status {
