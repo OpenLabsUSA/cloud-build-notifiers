@@ -32,7 +32,7 @@ func TestWriteMessage(t *testing.T) {
 
 	want := &slack.WebhookMessage{
 		Attachments: []slack.Attachment{{
-			Text:  "status: **SUCCESS**\nrepo: `repo-name`\ncommit: `abc123`\nstep: **step 2**",
+			Text:  "status: *SUCCESS*\nrepo: `repo-name`\ncommit: `abc123`\nstep: *step 2*",
 			Color: "good",
 			Actions: []slack.AttachmentAction{{
 				Text: "View Logs",

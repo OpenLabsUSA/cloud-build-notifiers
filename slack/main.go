@@ -86,7 +86,7 @@ func (s *slackNotifier) writeMessage(build *cbpb.Build) (*slack.WebhookMessage, 
 
 	// other useful fields in Substitutions: TRIGGER_NAME, BRANCH_NAME, _PR_NUMBER
 	var b bytes.Buffer
-	b.WriteString(fmt.Sprintf("status: **%s**", build.Status))
+	b.WriteString(fmt.Sprintf("status: *%s*", build.Status))
 	if val, ok := build.Substitutions["REPO_NAME"]; ok {
 		b.WriteString(fmt.Sprintf("\nrepo: `%s`", val))
 	}
@@ -95,7 +95,7 @@ func (s *slackNotifier) writeMessage(build *cbpb.Build) (*slack.WebhookMessage, 
 	}
 	for _, step := range build.Steps {
 		if step.Status == cbpb.Build_FAILURE {
-			b.WriteString(fmt.Sprintf("\nstep: **%s**", step.Id))
+			b.WriteString(fmt.Sprintf("\nstep: *%s*", step.Id))
 			break
 		}
 	}
