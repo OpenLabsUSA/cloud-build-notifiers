@@ -87,6 +87,9 @@ func (s *slackNotifier) writeMessage(build *cbpb.Build) (*slack.WebhookMessage, 
 	// other useful fields in Substitutions: TRIGGER_NAME, BRANCH_NAME, _PR_NUMBER
 	var b bytes.Buffer
 	b.WriteString(fmt.Sprintf("status: *%s*", build.Status))
+	if val, ok := build.Substitutions["TRIGGER_NAME"]; ok {
+		b.WriteString(fmt.Sprintf("\ntrigger: `%s`", val))
+	}
 	if val, ok := build.Substitutions["REPO_NAME"]; ok {
 		b.WriteString(fmt.Sprintf("\nrepo: `%s`", val))
 	}
